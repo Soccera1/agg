@@ -19,6 +19,10 @@ int main(void) {
   printf ("\nHow long would you like to play for? Answer in seconds.\n");
   scanf ("%d", &playtime);
 
+  int number_length;
+  printf ("Please enter maximum possible number\n");
+  scanf ("%d", & number_length);
+
   time_t unix_time;
   unix_time = time(NULL);
   int end_time = unix_time + playtime;
@@ -30,8 +34,8 @@ int main(void) {
 // I can't remember what the fuck these are for
 
   while (unix_time < end_time) {
-    float num1 = rand() % 10 + 1;
-    float num2 = rand() % 10 + 1;
+    float num1 = rand() % number_length + 1;
+    float num2 = rand() % number_length + 1;
     int type = rand() % 4 + 1;
     float result;
     float answer;
