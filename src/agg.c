@@ -13,10 +13,10 @@ int main(void) {
   if (tutorial) {
     printf ("OK! Lets continue.\n");
   } else {
-    printf ("TODO\n"); }
+    printf ("Welcome to Agg! This game tests your math skills against the clock.\n\nHow to Play:\n\n1.  Set Your Playtime: First, you'll decide how long you want to play by entering a duration in seconds.\n2.  Solve Math Problems: Once the game starts, you'll be presented with a series of random math problems: addition, division, subtraction, and multiplication. Your goal is to solve as many as you can before time runs out.\n3.  Enter Your Answer: After each problem, type your answer and press Enter. The game will immediately tell you if you're correct or incorrect.\n4.  Rack Up Points: For every correct answer, you'll earn a point. Your score will be tallied at the end.\n5.  Time's Up! The game ends automatically when your chosen playtime runs out. Good luck, and have fun!\n"); }
 
   int playtime;
-  printf ("How long would you like to play for? Answer in seconds.\n");
+  printf ("\nHow long would you like to play for? Answer in seconds.\n");
   scanf ("%d", &playtime);
 
   time_t unix_time;
