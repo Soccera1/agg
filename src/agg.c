@@ -37,7 +37,7 @@ int main(void) {
     float answer;
 
     // DEBUG
-    printf("%g, %g and %d\n", num1, num2, type);
+    //printf("%g, %g and %d\n", num1, num2, type);
 
     if (type == 1) {
       printf ("Add %g and %g\n", num1, num2);
@@ -69,7 +69,7 @@ int main(void) {
     }
 
     // DEBUG
-    printf ("Result is %g\n", result);
+   // printf ("Result is %g\n", result);
   }
 
   printf ("Your score is %d!\n", score);
