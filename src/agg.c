@@ -1,7 +1,10 @@
 // Made with GNU/Linux
 #include <stdio.h>
 #include <stdbool.h>
+#include <time.h>
+#include <stdlib.h>
 int main(void) {
+  srand(time(NULL));
   printf ("Hello World!\nThis is a game written for AgnoxGD.\nWould you like to see a tutorial\nType 1 for no, or 0 for yes.\n");
   int tempInput;
   bool tutorial;
@@ -11,5 +14,45 @@ int main(void) {
     printf ("OK! Lets continue.\n");
   } else {
     printf ("TODO\n"); }
+  int score;
+  int qa;
+  int tl;
+  int st;
+  float num1 = rand() % 10 + 1;
+  float num2 = rand() % 10 + 1;
+  int type = rand() % 4 + 1;
+  float result;
+  float answer;
+
+  // DEBUG
+  printf("%g, %g and %d\n", num1, num2, type);
+
+  if (type == 1) {
+    printf ("Add %g and %g\n", num1, num2);
+    result = num1 + num2;
+    scanf ("%g", &answer);
+  } else if (type == 2) {
+    printf ("Divide %g by %g\n", num1, num2);
+    result = num1 / num2;
+    scanf ("%g", &answer);
+  } else if (type == 3) {
+    printf ("Subtract %g from %g\n", num2, num1);
+    result = num1 - num2;
+    scanf ("%g", &answer);
+  } else if (type == 4) {
+    printf ("Multiply %g by %g\n", num1, num2);
+    result = num1 * num2;
+    scanf ("%g", &answer);
+  }
+
+  if (result == answer) {
+    printf ("Correct!\n");
+    score++;
+  } else {
+    printf ("Incorrect!\n");
+  }
+
+  // DEBUG
+  printf ("Result is %g\n", result);
   return 0;
 }
