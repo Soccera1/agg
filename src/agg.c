@@ -14,45 +14,65 @@ int main(void) {
     printf ("OK! Lets continue.\n");
   } else {
     printf ("TODO\n"); }
-  int score;
-  int qa;
-  int tl;
-  int st;
-  float num1 = rand() % 10 + 1;
-  float num2 = rand() % 10 + 1;
-  int type = rand() % 4 + 1;
-  float result;
-  float answer;
 
-  // DEBUG
-  printf("%g, %g and %d\n", num1, num2, type);
+  int playtime;
+  printf ("How long would you like to play for? Answer in seconds.\n");
+  scanf ("%d", &playtime);
 
-  if (type == 1) {
-    printf ("Add %g and %g\n", num1, num2);
-    result = num1 + num2;
-    scanf ("%g", &answer);
-  } else if (type == 2) {
-    printf ("Divide %g by %g\n", num1, num2);
-    result = num1 / num2;
-    scanf ("%g", &answer);
-  } else if (type == 3) {
-    printf ("Subtract %g from %g\n", num2, num1);
-    result = num1 - num2;
-    scanf ("%g", &answer);
-  } else if (type == 4) {
-    printf ("Multiply %g by %g\n", num1, num2);
-    result = num1 * num2;
-    scanf ("%g", &answer);
+  time_t unix_time;
+  unix_time = time(NULL);
+  int end_time = unix_time + playtime;
+
+  int score = 0;
+//  int qa;
+//  int tl;
+//  int st;
+// I can't remember what the fuck these are for
+
+  while (unix_time < end_time) {
+    float num1 = rand() % 10 + 1;
+    float num2 = rand() % 10 + 1;
+    int type = rand() % 4 + 1;
+    float result;
+    float answer;
+
+    // DEBUG
+    printf("%g, %g and %d\n", num1, num2, type);
+
+    if (type == 1) {
+      printf ("Add %g and %g\n", num1, num2);
+      result = num1 + num2;
+      scanf ("%g", &answer);
+      unix_time = time(NULL);
+    } else if (type == 2) {
+      printf ("Divide %g by %g\n", num1, num2);
+      result = num1 / num2;
+      scanf ("%g", &answer);
+      unix_time = time(NULL);
+    } else if (type == 3) {
+      printf ("Subtract %g from %g\n", num2, num1);
+      result = num1 - num2;
+      scanf ("%g", &answer);
+      unix_time = time(NULL);
+    } else if (type == 4) {
+      printf ("Multiply %g by %g\n", num1, num2);
+      result = num1 * num2;
+      scanf ("%g", &answer);
+      unix_time = time(NULL);
+    }
+
+    if (result == answer) {
+      printf ("Correct!\n");
+      score++;
+    } else {
+      printf ("Incorrect!\n");
+    }
+
+    // DEBUG
+    printf ("Result is %g\n", result);
   }
 
-  if (result == answer) {
-    printf ("Correct!\n");
-    score++;
-  } else {
-    printf ("Incorrect!\n");
-  }
+  printf ("Your score is %d!\n", score);
 
-  // DEBUG
-  printf ("Result is %g\n", result);
   return 0;
 }
