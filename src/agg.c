@@ -101,7 +101,7 @@ int main(void) {
       printf ("Correct!\n");
       score++;
     } else {
-      printf ("Incorrect!\n");
+      printf ("Incorrect! The correct answer is %g.\n", result);
     }
 
     // DEBUG
