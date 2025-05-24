@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 int main(void) {
   srand(time(NULL));
   printf ("Hello World!\nThis is a game written for AgnoxGD.\nWould you like to see a tutorial\nType 1 for no, or 0 for yes.\n");
@@ -28,10 +29,6 @@ int main(void) {
   int end_time = unix_time + playtime;
 
   int score = 0;
-//  int qa;
-//  int tl;
-//  int st;
-// I can't remember what the fuck these are for
 
   while (unix_time < end_time) {
     float num1 = rand() % number_length + 1;
@@ -39,6 +36,7 @@ int main(void) {
     int type = rand() % 4 + 1;
     float result;
     float answer;
+    char entered[20];
 
     // DEBUG
     //printf("%g, %g and %d\n", num1, num2, type);
@@ -46,23 +44,57 @@ int main(void) {
     if (type == 1) {
       printf ("Add %g and %g\n", num1, num2);
       result = num1 + num2;
-      scanf ("%g", &answer);
       unix_time = time(NULL);
     } else if (type == 2) {
       printf ("Divide %g by %g\n", num1, num2);
       result = num1 / num2;
-      scanf ("%g", &answer);
       unix_time = time(NULL);
     } else if (type == 3) {
       printf ("Subtract %g from %g\n", num2, num1);
       result = num1 - num2;
-      scanf ("%g", &answer);
       unix_time = time(NULL);
     } else if (type == 4) {
       printf ("Multiply %g by %g\n", num1, num2);
       result = num1 * num2;
-      scanf ("%g", &answer);
       unix_time = time(NULL);
+    }
+
+    scanf ("%s", entered);
+    int valid = 1;
+    for (int i = 0; i < strlen(entered); i++) {
+      switch (entered [i]) {
+        case '0':
+        break;
+        case '1':
+        break;
+        case '2':
+        break;
+        case '3':
+        break;
+        case '4':
+        break;
+        case '5':
+        break;
+        case '6':
+        break;
+        case '7':
+        break;
+        case '8':
+        break;
+        case '9':
+        break;
+        case '.':
+        break;
+        default:
+        valid = 0;
+      }
+    }
+
+    if (valid == 1) {
+      sscanf (entered, "%g", &answer);
+    } else {
+      printf ("Error! An invalid character was entered.\n");
+      exit (1);
     }
 
     if (result == answer) {
