@@ -125,9 +125,9 @@ int main(void) {
     printf ("Try again!, %s.\n", username);
   }
   if (accuracytype == 1) {
-    printf ("You got an accuracy of %d!\n", (int)accuracy);
+    printf ("You got an accuracy of %d%%!\n", (int)accuracy);
   } else {
-    printf ("You got an accuracy of %g!\n", accuracy);
+    printf ("You got an accuracy of %g%%!\n", accuracy);
   }
   return 0;
 }
