@@ -4,6 +4,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 int main(void) {
   srand(time(NULL));
 
@@ -115,12 +116,7 @@ int main(void) {
 
   float accuracy;
 
-  accuracy = score / questioncount;
-  if (accuracytype == 1) {
-    accuracy = (int)accuracy * 100;
-  } else {
-    accuracy = accuracy * 100;
-  }
+  accuracy = (float)score / questioncount * 100;
 
   printf ("Your score is %d!\n", score);
   if (score >= 1) {
