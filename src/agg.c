@@ -49,7 +49,7 @@ int main(void) {
   int accuracytype;
   char input[2];
   printf ("Would you like your accuracy as a float or as an int? Type 0 for float or 1 for int.\n");
-  scanf ("%s", &input);
+  scanf ("%s", input);
 
   if (isvalidnumber(input)) {
     sscanf(input, "%d", &accuracytype);
