@@ -96,7 +96,7 @@ int main(void) {
       printf ("Divide %g by %g\n", num1, num2);
       result = num1 / num2;
     } else if (type == 3) {
-      printf ("Subtract %g from %g\n", num2, num1);
+      printf ("Subtract %g from %g\n", num1, num2);
       result = num1 - num2;
     } else if (type == 4) {
       printf ("Multiply %g by %g\n", num1, num2);
