@@ -34,20 +34,25 @@ int isvalidnumber(char entered []) {
 int main(void) {
 
   srand(time(NULL));
-
-  char *username = getenv("USER");
-  printf ("Hello %s!\nThis is a game written for AgnoxGD.\nWould you like to see a tutorial\nType 1 for no, or 0 for yes.\n", username);
+  char input[2];
   int tempInput;
+  char *username = getenv("USER");
   bool tutorial;
-  if (scanf ("%d", &tempInput) == 1) {
-    tutorial = tempInput; }
+  printf ("Hello %s!\nThis is a game written for AgnoxGD.\nWould you like to see a tutorial\nType 1 for no, or 0 for yes.\n", username);
+  scanf("%s", input);
+  if (isvalidnumber(input)) {
+    sscanf(input, "%d", &tempInput);
+    tutorial = tempInput;
+  } else {
+    printf ("Error! An invalid character was entered.\n");
+    exit(1);
+  }
   if (tutorial) {
     printf ("OK! Lets continue.\n");
   } else {
     printf ("Welcome to Agg! This game tests your math skills against the clock.\n\nHow to Play:\n\n1.  Set Your Playtime: First, you'll decide how long you want to play by entering a duration in seconds.\n2.  Solve Math Problems: Once the game starts, you'll be presented with a series of random math problems: addition, division, subtraction, and multiplication. Your goal is to solve as many as you can before time runs out.\n3.  Enter Your Answer: After each problem, type your answer and press Enter. The game will immediately tell you if you're correct or incorrect.\n4.  Rack Up Points: For every correct answer, you'll earn a point. Your score will be tallied at the end.\n5.  Time's Up! The game ends automatically when your chosen playtime runs out. Good luck, and have fun!\n"); }
 
   int accuracytype;
-  char input[2];
   printf ("Would you like your accuracy as a float or as an int? Type 0 for float or 1 for int.\n");
   scanf ("%s", input);
 
