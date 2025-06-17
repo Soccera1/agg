@@ -64,7 +64,6 @@
         let questioncount = 0;
         let currentResult = 0;
         let gameRunning = false;
-        let gameInterval;
 
         function print(text) {
             document.getElementById('output').innerHTML += text + '\n';
@@ -102,6 +101,32 @@
             return Math.floor(Date.now() / 1000);
         }
 
+        function isvalidnumber(entered) {
+            let valid = 1;
+            for (let i = 0; i < entered.length; i++) {
+                const char = entered[i];
+                switch (char) {
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                    case '.':
+                    case '-':
+                        break;
+                    default:
+                        valid = 0;
+                        break;
+                }
+            }
+            return valid;
+        }
+
         function startGame() {
             const username = getUsername();
             print(`Hello ${username}!`);
@@ -110,9 +135,12 @@
             print("Type 1 for no, or 0 for yes.");
             
             createInput("Enter 0 or 1", function(input) {
-                const tempInput = parseInt(input);
-                if (!isNaN(tempInput)) {
+                if (isvalidnumber(input)) {
+                    const tempInput = parseInt(input);
                     tutorial = tempInput;
+                } else {
+                    print("Error! An invalid character was entered.");
+                    return;
                 }
                 
                 clearInput();
@@ -130,7 +158,12 @@
         function askAccuracyType() {
             print("Would you like your accuracy as a float or as an int? Type 0 for float or 1 for int.");
             createInput("Enter 0 or 1", function(input) {
-                accuracytype = parseInt(input);
+                if (isvalidnumber(input)) {
+                    accuracytype = parseInt(input);
+                } else {
+                    print("Error! An invalid character was entered.");
+                    return;
+                }
                 clearInput();
                 askPlaytime();
             });
@@ -165,7 +198,7 @@
         }
 
         function nextQuestion() {
-            const unix_time = time();
+            let unix_time = time();
             
             if (unix_time >= end_time) {
                 endGame();
@@ -184,27 +217,20 @@
                 print(`Divide ${num1} by ${num2}`);
                 result = num1 / num2;
             } else if (type == 3) {
-                print(`Subtract ${num1} from ${num2}`);
-                result = num2 - num1;
+                print(`Subtract ${num2} from ${num1}`);
+                result = num1 - num2;
             } else if (type == 4) {
                 print(`Multiply ${num1} by ${num2}`);
                 result = num1 * num2;
             }
             
+            // Update time after generating question (like C version)
+            unix_time = time();
             currentResult = result;
             questioncount++;
             
             createInput("Enter your answer", function(entered) {
-                let valid = 1;
-                for (let i = 0; i < entered.length; i++) {
-                    const char = entered[i];
-                    if (!'0123456789.'.includes(char)) {
-                        valid = 0;
-                        break;
-                    }
-                }
-                
-                if (valid == 1) {
+                if (isvalidnumber(entered)) {
                     const answer = parseFloat(entered);
                     
                     if (currentResult == answer) {
@@ -215,12 +241,11 @@
                     }
                 } else {
                     print("Error! An invalid character was entered.");
-                    endGame();
                     return;
                 }
                 
                 clearInput();
-                setTimeout(nextQuestion, 100); // Small delay to prevent blocking
+                setTimeout(nextQuestion, 10); // Small delay to prevent blocking
             });
         }
 
