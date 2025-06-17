@@ -5,7 +5,34 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+
+int isvalidnumber(char entered []) {
+    int valid = 1;
+    for (int i = 0; i < strlen(entered); i++) {
+        switch (entered[i]) {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '.':
+        case '-':
+            break;
+        default:
+            valid = 0;
+            break;
+        }
+    }
+    return valid;
+}
+
 int main(void) {
+
   srand(time(NULL));
 
   char *username = getenv("USER");
@@ -66,37 +93,8 @@ int main(void) {
     questioncount++;
 
     scanf ("%s", entered);
-    int valid = 1;
-    for (int i = 0; i < strlen(entered); i++) {
-      switch (entered [i]) {
-        case '0':
-        break;
-        case '1':
-        break;
-        case '2':
-        break;
-        case '3':
-        break;
-        case '4':
-        break;
-        case '5':
-        break;
-        case '6':
-        break;
-        case '7':
-        break;
-        case '8':
-        break;
-        case '9':
-        break;
-        case '.':
-        break;
-        default:
-        valid = 0;
-      }
-    }
 
-    if (valid == 1) {
+    if (isvalidnumber(entered)) {
       sscanf (entered, "%g", &answer);
     } else {
       printf ("Error! An invalid character was entered.\n");
