@@ -38,6 +38,11 @@ int main(void) {
   int tempInput;
   char *username = getenv("USER");
   bool tutorial;
+
+  #if !defined(__linux__)
+    printf ("This program has not and will not be tested on non Linux systems! If you experience errors, do not report them!\nIf you wish to fix an issue, please excercise your rights under the GNU Affero Public License Version 3.\nI may occasionally test using wine, however I will never test using native win32, so errors may occur due to this.\n\n"
+  #endif
+
   printf ("Hello %s!\nThis is a game written for AgnoxGD.\nWould you like to see a tutorial\nType 1 for no, or 0 for yes.\n", username);
   scanf("%s", input);
   if (isvalidnumber(input)) {
@@ -53,7 +58,7 @@ int main(void) {
     printf ("Welcome to Agg! This game tests your math skills against the clock.\n\nHow to Play:\n\n1.  Set Your Playtime: First, you'll decide how long you want to play by entering a duration in seconds.\n2.  Solve Math Problems: Once the game starts, you'll be presented with a series of random math problems: addition, division, subtraction, and multiplication. Your goal is to solve as many as you can before time runs out.\n3.  Enter Your Answer: After each problem, type your answer and press Enter. The game will immediately tell you if you're correct or incorrect.\n4.  Rack Up Points: For every correct answer, you'll earn a point. Your score will be tallied at the end.\n5.  Time's Up! The game ends automatically when your chosen playtime runs out. Good luck, and have fun!\n"); }
 
   int accuracytype;
-  printf ("Would you like your accuracy as a float or as an int? Type 0 for float or 1 for int.\n");
+  printf ("\nWould you like your accuracy as a float or as an int? Type 0 for float or 1 for int.\n");
   scanf ("%s", input);
 
   if (isvalidnumber(input)) {
@@ -140,5 +145,6 @@ int main(void) {
   } else {
     printf ("You got an accuracy of %g%%!\n", accuracy);
   }
+
   return 0;
 }
