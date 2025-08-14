@@ -40,7 +40,7 @@ int main(void) {
   bool tutorial;
 
   #if !defined(__linux__)
-    printf ("This program has not and will not be tested on non Linux systems! If you experience errors, do not report them!\nIf you wish to fix an issue, please excercise your rights under the GNU Affero Public License Version 3.\nI may occasionally test using wine, however I will never test using native win32, so errors may occur due to this.\n\n"
+    printf ("This program has not and will not be tested on non Linux systems! If you experience errors, do not report them!\nIf you wish to fix an issue, please excercise your rights under the GNU Affero Public License Version 3.\nI may occasionally test using wine, however I will never test using native win32, so errors may occur due to this.\n\n");
   #endif
 
   printf ("Hello %s!\nThis is a game written for AgnoxGD.\nWould you like to see a tutorial\nType 1 for no, or 0 for yes.\n", username);
