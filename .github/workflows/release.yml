@@ -61,21 +61,27 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Get latest tag
+      - name: Get latest unique tag
         id: get_tag
         run: |
-          # Get the latest tag, or default to v0.0.0 if no tags exist
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
-
-          # Increment the patch version for the new release
-          # Assuming tags are in semver format like vX.Y.Z
-          if [ "$LATEST_TAG" = "v0.0.0" ]; then
-              NEW_TAG="v0.0.1"
+          LATEST_TAG=$(git tag --sort=-v:refname | head -n1 || echo "v0.0.0")
+          NEW_TAG=""
+          if [[ "$LATEST_TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            MAJOR=${BASH_REMATCH[1]}
+            MINOR=${BASH_REMATCH[2]}
+            PATCH=${BASH_REMATCH[3]}
+            while : ; do
+              PATCH=$((PATCH + 1))
+              CANDIDATE_TAG="v$MAJOR.$MINOR.$PATCH"
+              if ! git rev-parse "$CANDIDATE_TAG" >/dev/null 2>&1; then
+                NEW_TAG=$CANDIDATE_TAG
+                break
+              fi
+            done
           else
-              NEW_PATCH=$(echo $LATEST_TAG | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
-              NEW_TAG="v${NEW_PATCH#v}" # Remove 'v' if present from the awk output
+            NEW_TAG="v0.0.1"
           fi
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
           echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
         shell: bash
 
