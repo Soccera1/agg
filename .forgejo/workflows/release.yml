@@ -1,0 +1,106 @@
+name: Create Release on Push
+
+on:
+  push:
+    branches:
+      - master # or your default branch, e.g., master
+
+jobs:
+  build_and_release_linux:
+    runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.get_tag.outputs.new_tag }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+    permissions:
+      contents: write # Grant write permissions to the GITHUB_TOKEN for creating releases
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
+      - name: Build project
+        run: make all
+        working-directory: agg
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          # Get the latest tag, or default to v0.0.0 if no tags exist
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+          # Increment the patch version for the new release
+          # Assuming tags are in semver format like vX.Y.Z
+          if [ "$LATEST_TAG" = "v0.0.0" ]; then
+              NEW_TAG="v0.0.1"
+          else
+              NEW_PATCH=$(echo $LATEST_TAG | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+              NEW_TAG="v${NEW_PATCH#v}" # Remove 'v' if present from the awk output
+          fi
+          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+          echo "::set-output name=new_tag::$NEW_TAG" # Set step output for job output
+        shell: bash
+
+      - name: Create Release
+        id: create_release
+        uses: forgejo/actions/create-release@v1
+        env:
+          GITEA_TOKEN: ${{ secrets.FORGEJO_TOKEN }} # Use FORGEJO_TOKEN for Forgejo
+        with:
+          tag_name: ${{ env.NEW_TAG }}
+          release_name: Release ${{ env.NEW_TAG }}
+          body: |
+            Automated release created on push.
+            Commit: ${{ github.sha }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        id: upload_release_asset
+        if: success()
+        uses: forgejo/actions/upload-release-asset@v1
+        env:
+          GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: agg/bin/agg
+          asset_name: agg-${{ env.NEW_TAG }}-linux-amd64
+          asset_content_type: application/octet-stream
+
+  build_and_upload_windows:
+    runs-on: windows-latest
+    needs: build_and_release_linux # Depends on the Linux build to get tag and upload URL
+
+    permissions:
+      contents: write # Grant write permissions for uploading assets
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install MinGW/GCC and Make
+        run: |
+          choco install mingw --limit-features
+          choco install make --limit-features
+          # Add MinGW bin directory to PATH for the current session
+          echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding Utf8 -Append
+        shell: powershell
+
+      - name: Build project for Windows
+        run: make all
+        working-directory: agg
+        shell: bash # Choco-installed make typically comes with Git Bash, which provides `bash`.
+
+      - name: Upload Windows Release Asset
+        uses: forgejo/actions/upload-release-asset@v1
+        env:
+          GITEA_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
+        with:
+          upload_url: ${{ needs.build_and_release_linux.outputs.upload_url }}
+          asset_path: agg/bin/agg.exe
+          asset_name: agg-${{ needs.build_and_release_linux.outputs.new_tag }}-windows-amd64.exe
+          asset_content_type: application/octet-stream
