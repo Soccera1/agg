@@ -21,7 +21,7 @@ jobs:
         working-directory: agg
 
       - name: Upload Linux artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: agg-linux-amd64
           path: agg/bin/agg
@@ -46,7 +46,7 @@ jobs:
         shell: bash # Choco-installed make typically comes with Git Bash, which provides `bash`.
 
       - name: Upload Windows artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: agg-windows-amd64
           path: agg/bin/agg.exe
@@ -94,13 +94,13 @@ jobs:
           prerelease: false
 
       - name: Download Linux artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: agg-linux-amd64
           path: ./artifacts/linux/
 
       - name: Download Windows artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: agg-windows-amd64
           path: ./artifacts/windows/
