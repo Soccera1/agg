@@ -41,7 +41,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential gcc-aarch64-linux-gnu
 
-
       - name: Build project for Linux (AArch64)
         run: make CC=aarch64-linux-gnu-gcc all
         working-directory: ${{ github.workspace }}
@@ -61,7 +60,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install MinGW/GCC and Make
-        run: |\
+        run: |
           choco install mingw --limit-features
           choco install make --limit-features
           # Add MinGW bin directory to PATH for the current session
@@ -88,7 +87,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install MinGW-w64 AArch64 toolchain
-        run: |\
+        run: |
           # Attempt to install via Choco. Package names for AArch64 MinGW can vary.
           # We'll try common package names. If these fail, manual download/setup of a toolchain
           # from MSYS2 or similar might be needed.
@@ -139,7 +138,7 @@ jobs:
 
       - name: Get latest unique tag
         id: get_tag
-        run: |\
+        run: |
           LATEST_TAG=$(git tag --sort=-v:refname | head -n1 || echo "v0.0.0")
           echo "Debug: Initial LATEST_TAG: $LATEST_TAG"
 
@@ -177,7 +176,7 @@ jobs:
         with:
           tag_name: ${{ env.NEW_TAG }}
           release_name: Release ${{ env.NEW_TAG }}
-          body: |\
+          body: |
             Automated release created on push.
             Commit: ${{ github.sha }}
           draft: false
