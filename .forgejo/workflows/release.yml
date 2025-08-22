@@ -3,7 +3,7 @@ name: Create Release on Push
 on:
   push:
     branches:
-      - master # or your default branch, e.g., master
+      - master # or your default branch
 
 jobs:
   build_and_release_linux:
