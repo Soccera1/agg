@@ -65,22 +65,30 @@ jobs:
         id: get_tag
         run: |
           LATEST_TAG=$(git tag --sort=-v:refname | head -n1 || echo "v0.0.0")
+          echo "Debug: Initial LATEST_TAG: $LATEST_TAG"
+
           NEW_TAG=""
           if [[ "$LATEST_TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
             MAJOR=${BASH_REMATCH[1]}
             MINOR=${BASH_REMATCH[2]}
             PATCH=${BASH_REMATCH[3]}
+            echo "Debug: Parsed: MAJOR=$MAJOR, MINOR=$MINOR, PATCH=$PATCH"
             while : ; do
               PATCH=$((PATCH + 1))
               CANDIDATE_TAG="v$MAJOR.$MINOR.$PATCH"
+              echo "Debug: Trying CANDIDATE_TAG: $CANDIDATE_TAG"
               if ! git rev-parse "$CANDIDATE_TAG" >/dev/null 2>&1; then
                 NEW_TAG=$CANDIDATE_TAG
+                echo "Debug: Found NEW_TAG: $NEW_TAG (unused)"
                 break
               fi
             done
           else
             NEW_TAG="v0.0.1"
+            echo "Debug: No previous semver tags found. Setting NEW_TAG: $NEW_TAG"
           fi
+          echo "Debug: Final LATEST_TAG for ENV: $LATEST_TAG"
+          echo "Debug: Final NEW_TAG for ENV: $NEW_TAG"
           echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
           echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
         shell: bash
