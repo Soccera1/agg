@@ -3,11 +3,11 @@ name: Create Release on Push (GitHub)
 on:
   push:
     branches:
-      - master # or your default branch
+      - master # or your default branch, e.g., master
   workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
-  build_linux_amd64:
+  build_linux:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -18,40 +18,17 @@ jobs:
       - name: Install build dependencies
         run: sudo apt-get update && sudo apt-get install -y build-essential
 
-      - name: Build project for Linux (AMD64)
+      - name: Build project for Linux
         run: make all
         working-directory: ${{ github.workspace }}
 
-      - name: Upload Linux AMD64 artifact
+      - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
           name: agg-linux-amd64
           path: bin/agg
 
-  build_linux_aarch64:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Install cross-compilation tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential gcc-aarch64-linux-gnu
-
-      - name: Build project for Linux (AArch64)
-        run: make CC=aarch64-linux-gnu-gcc all
-        working-directory: ${{ github.workspace }}
-
-      - name: Upload Linux AArch64 artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: agg-linux-aarch64
-          path: bin/agg
-
-  build_windows_amd64:
+  build_windows:
     runs-on: windows-latest
     steps:
       - name: Checkout code
@@ -64,85 +41,106 @@ jobs:
           choco install mingw --limit-features
           choco install make --limit-features
           # Add MinGW bin directory to PATH for the current session
-          "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding Utf8 -Append
+          echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding Utf8 -Append
         shell: powershell
 
-      - name: Build project for Windows (AMD64)
+      - name: Build project for Windows
         run: make all
         working-directory: ${{ github.workspace }}
-        shell: pwsh
+        shell: pwsh # Using PowerShell for more reliable path handling on Windows
 
-      - name: Upload Windows AMD64 artifact
+      - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: agg-windows-amd64
           path: bin/agg.exe
-create_release_and_upload_assets:
-runs-on: ubuntu-latest
-needs: [build_linux_amd64, build_linux_aarch64, build_windows_amd64]
-permissions:
-contents: write # Grant write permissions to the GITHUB_TOKEN for creating releases
 
-steps:
-- name: Checkout code
-uses: actions/checkout@v3
-with:
-fetch-depth: 0
+  create_release_and_upload_assets:
+    runs-on: ubuntu-latest
+    needs: [build_linux, build_windows] # Depends on both build jobs to complete
+    permissions:
+      contents: write # Grant write permissions to the GITHUB_TOKEN for creating releases
 
-- name: Get latest unique tag
-id: get_tag
-run: |\
-LATEST_TAG=$(git tag --sort=-v:refname | head -n1 || echo "v0.0.0")
-echo "Debug: Initial LATEST_TAG: $LATEST_TAG"\
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-NEW_TAG=""
-if [[ "$LATEST_TAG" =~ ^v([0-9]+)\\.([0-9]+)\\.([0-9]+)$ ]]; then
-  MAJOR=${BASH_REMATCH[1]}\
-  MINOR=${BASH_REMATCH[2]}\
-  PATCH=${BASH_REMATCH[3]}\
-  echo "Debug: Parsed: MAJOR=$MAJOR, MINOR=$MINOR, PATCH=$PATCH"\
-  while : ; do
-    PATCH=$((PATCH + 1))\
-    CANDIDATE_TAG="v$MAJOR.$MINOR.$PATCH"\
-    echo "Debug: Trying CANDIDATE_TAG: $CANDIDATE_TAG"\
-    if ! git rev-parse "$CANDIDATE_TAG" >/dev/null 2>&1; then
-      NEW_TAG=$CANDIDATE_TAG\
-      echo "Debug: Found NEW_TAG: $NEW_TAG (unused)"\
-      break\
-    fi
-  done
-else
-  NEW_TAG="v0.0.1"\
-  echo "Debug: No previous semver tags found. Setting NEW_TAG: $NEW_TAG"\
-fi
-echo "Debug: Final LATEST_TAG for ENV: $LATEST_TAG"\
-echo "Debug: Final NEW_TAG for ENV: $NEW_TAG"\
-echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV\
-echo \\"NEW_TAG=$NEW_TAG\\" >> $GITHUB_ENV
-shell: bash
+      - name: Get latest unique tag
+        id: get_tag
+        run: |
+          LATEST_TAG=$(git tag --sort=-v:refname | head -n1 || echo "v0.0.0")
+          echo "Debug: Initial LATEST_TAG: $LATEST_TAG"
 
-- name: Create Release
-id: create_release
-uses: actions/create-release@v1
-env:
-GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-with:
-tag_name: ${{ env.NEW_TAG }}
-release_name: Release ${{ env.NEW_TAG }}
-body: |\
-  Automated release created on push.\
-  Commit: ${{ github.sha }}
-draft: false
-prerelease: false
+          NEW_TAG=""
+          if [[ "$LATEST_TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            MAJOR=${BASH_REMATCH[1]}
+            MINOR=${BASH_REMATCH[2]}
+            PATCH=${BASH_REMATCH[3]}
+            echo "Debug: Parsed: MAJOR=$MAJOR, MINOR=$MINOR, PATCH=$PATCH"
+            while : ; do
+              PATCH=$((PATCH + 1))
+              CANDIDATE_TAG="v$MAJOR.$MINOR.$PATCH"
+              echo "Debug: Trying CANDIDATE_TAG: $CANDIDATE_TAG"
+              if ! git rev-parse "$CANDIDATE_TAG" >/dev/null 2>&1; then
+                NEW_TAG=$CANDIDATE_TAG
+                echo "Debug: Found NEW_TAG: $NEW_TAG (unused)"
+                break
+              fi
+            done
+          else
+            NEW_TAG="v0.0.1"
+            echo "Debug: No previous semver tags found. Setting NEW_TAG: $NEW_TAG"
+          fi
+          echo "Debug: Final LATEST_TAG for ENV: $LATEST_TAG"
+          echo "Debug: Final NEW_TAG for ENV: $NEW_TAG"
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+        shell: bash
 
-- name: Download Linux AMD64 artifact
-uses: actions/download-artifact@v4
-with:
-name: agg-linux-amd64
-path: ./artifacts/linux-amd64/
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Use the default GITHUB_TOKEN
+        with:
+          tag_name: ${{ env.NEW_TAG }}
+          release_name: Release ${{ env.NEW_TAG }}
+          body: |
+            Automated release created on push.
+            Commit: ${{ github.sha }}
+          draft: false
+          prerelease: false
 
-- name: Download Linux AArch64 artifact
-uses: actions/download-artifact@v4
-with:
-name: agg-linux-aarch64
-path: ./artifacts/linux-aarch64/
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: agg-linux-amd64
+          path: ./artifacts/linux/
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: agg-windows-amd64
+          path: ./artifacts/windows/
+
+      - name: Upload Linux Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/linux/agg
+          asset_name: agg-${{ env.NEW_TAG }}-linux-amd64
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/windows/agg.exe
+          asset_name: agg-${{ env.NEW_TAG }}-windows-amd64.exe
+          asset_content_type: application/octet-stream
