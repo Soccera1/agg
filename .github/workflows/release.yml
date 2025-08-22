@@ -77,120 +77,72 @@ jobs:
         with:
           name: agg-windows-amd64
           path: bin/agg.exe
+create_release_and_upload_assets:
+runs-on: ubuntu-latest
+needs: [build_linux_amd64, build_linux_aarch64, build_windows_amd64]
+permissions:
+contents: write # Grant write permissions to the GITHUB_TOKEN for creating releases
 
-  build_windows_aarch64:
-    runs-on: windows-latest # Cross-compile from an x64 Windows runner
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+steps:
+- name: Checkout code
+uses: actions/checkout@v3
+with:
+fetch-depth: 0
 
-      - name: Install MinGW-w64 AArch64 toolchain
-        run: |
-          # Attempt to install via Choco. Package names for AArch64 MinGW can vary.
-          # We'll try common package names. If these fail, manual download/setup of a toolchain
-          # from MSYS2 or similar might be needed.
-          $choco_install_ucrt = choco install mingw-w64-ucrt-aarch64 --limit-features
-          if ($choco_install_ucrt.ExitCode -ne 0) {
-            Write-Host "Failed to install mingw-w64-ucrt-aarch64" -ForegroundColor Red
-          }
+- name: Get latest unique tag
+id: get_tag
+run: |\
+LATEST_TAG=$(git tag --sort=-v:refname | head -n1 || echo "v0.0.0")
+echo "Debug: Initial LATEST_TAG: $LATEST_TAG"\
 
-          $choco_install_none = choco install mingw-w64-arm-none-eabi --limit-features
-          if ($choco_install_none.ExitCode -ne 0) {
-            Write-Host "Failed to install mingw-w64-arm-none-eabi" -ForegroundColor Red
-          }
-          Write-Host "Could not install AArch64 MinGW via Choco. Manual intervention might be needed." -ForegroundColor Red
+NEW_TAG=""
+if [[ "$LATEST_TAG" =~ ^v([0-9]+)\\.([0-9]+)\\.([0-9]+)$ ]]; then
+  MAJOR=${BASH_REMATCH[1]}\
+  MINOR=${BASH_REMATCH[2]}\
+  PATCH=${BASH_REMATCH[3]}\
+  echo "Debug: Parsed: MAJOR=$MAJOR, MINOR=$MINOR, PATCH=$PATCH"\
+  while : ; do
+    PATCH=$((PATCH + 1))\
+    CANDIDATE_TAG="v$MAJOR.$MINOR.$PATCH"\
+    echo "Debug: Trying CANDIDATE_TAG: $CANDIDATE_TAG"\
+    if ! git rev-parse "$CANDIDATE_TAG" >/dev/null 2>&1; then
+      NEW_TAG=$CANDIDATE_TAG\
+      echo "Debug: Found NEW_TAG: $NEW_TAG (unused)"\
+      break\
+    fi
+  done
+else
+  NEW_TAG="v0.0.1"\
+  echo "Debug: No previous semver tags found. Setting NEW_TAG: $NEW_TAG"\
+fi
+echo "Debug: Final LATEST_TAG for ENV: $LATEST_TAG"\
+echo "Debug: Final NEW_TAG for ENV: $NEW_TAG"\
+echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV\
+echo \\"NEW_TAG=$NEW_TAG\\" >> $GITHUB_ENV
+shell: bash
 
-          # Add the appropriate bin directory to PATH for the current session.
-          # This path depends on which choco package was actually installed.
-          # We'll try common paths.
-          if (Test-Path "C:\\ProgramData\\chocolatey\\lib\\mingw-w64-ucrt-aarch64\\tools\\install\\mingw64\\bin") {
-              "C:\\ProgramData\\chocolatey\\lib\\mingw-w64-ucrt-aarch64\\tools\\install\\mingw64\\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding Utf8 -Append
-          } elseif (Test-Path "C:\\ProgramData\\chocolatey\\lib\\mingw-w64-arm-none-eabi\\tools\\install\\mingw64\\bin") {
-              "C:\\ProgramData\\chocolatey\\lib\\mingw-w64-arm-none-eabi\\tools\\install\\mingw64\\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding Utf8 -Append
-          } else {
-              Write-Host "Could not find MinGW AArch64 bin path after install. Build might fail." -ForegroundColor Yellow
-          }
-        shell: powershell
+- name: Create Release
+id: create_release
+uses: actions/create-release@v1
+env:
+GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+with:
+tag_name: ${{ env.NEW_TAG }}
+release_name: Release ${{ env.NEW_TAG }}
+body: |\
+  Automated release created on push.\
+  Commit: ${{ github.sha }}
+draft: false
+prerelease: false
 
-      - name: Build project for Windows (AArch64)
-        run: make CC=aarch64-w64-mingw32-gcc all
-        working-directory: ${{ github.workspace }}
-        shell: pwsh # Use PowerShell for consistent path handling
+- name: Download Linux AMD64 artifact
+uses: actions/download-artifact@v4
+with:
+name: agg-linux-amd64
+path: ./artifacts/linux-amd64/
 
-      - name: Upload Windows AArch64 artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: agg-windows-aarch64
-          path: bin/agg.exe # Windows executables have .exe extension
-
-  create_release_and_upload_assets:
-    runs-on: ubuntu-latest
-    needs: [build_linux_amd64, build_linux_aarch64, build_windows_amd64]
-    permissions:
-      contents: write # Grant write permissions to the GITHUB_TOKEN for creating releases
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Get latest unique tag
-        id: get_tag
-        run: |
-          LATEST_TAG=$(git tag --sort=-v:refname | head -n1 || echo "v0.0.0")
-          echo "Debug: Initial LATEST_TAG: $LATEST_TAG"
-
-          NEW_TAG=""
-          if [[ "$LATEST_TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-            MAJOR=${BASH_REMATCH[1]}
-            MINOR=${BASH_REMATCH[2]}
-            PATCH=${BASH_REMATCH[3]}
-            echo "Debug: Parsed: MAJOR=$MAJOR, MINOR=$MINOR, PATCH=$PATCH"
-            while : ; do
-              PATCH=$((PATCH + 1))
-              CANDIDATE_TAG="v$MAJOR.$MINOR.$PATCH"
-              echo "Debug: Trying CANDIDATE_TAG: $CANDIDATE_TAG"
-              if ! git rev-parse "$CANDIDATE_TAG" >/dev/null 2>&1; then
-                NEW_TAG=$CANDIDATE_TAG
-                echo "Debug: Found NEW_TAG: $NEW_TAG (unused)"
-                break
-              fi
-            done
-          else
-            NEW_TAG="v0.0.1"
-            echo "Debug: No previous semver tags found. Setting NEW_TAG: $NEW_TAG"
-          fi
-          echo "Debug: Final LATEST_TAG for ENV: $LATEST_TAG"
-          echo "Debug: Final NEW_TAG for ENV: $NEW_TAG"
-          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
-          echo \"NEW_TAG=$NEW_TAG\" >> $GITHUB_ENV
-        shell: bash
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.NEW_TAG }}
-          release_name: Release ${{ env.NEW_TAG }}
-          body: |
-            Automated release created on push.
-            Commit: ${{ github.sha }}
-          draft: false
-          prerelease: false
-
-      - name: Download Linux AMD64 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: agg-linux-amd64
-          path: ./artifacts/linux-amd64/
-
-      - name: Download Linux AArch64 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: agg-linux-aarch64
-          path: ./artifacts/linux-aarch64/
+- name: Download Linux AArch64 artifact
+uses: actions/download-artifact@v4
+with:
+name: agg-linux-aarch64
+path: ./artifacts/linux-aarch64/
