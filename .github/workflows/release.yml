@@ -91,8 +91,15 @@ jobs:
           # Attempt to install via Choco. Package names for AArch64 MinGW can vary.
           # We'll try common package names. If these fail, manual download/setup of a toolchain
           # from MSYS2 or similar might be needed.
-          choco install mingw-w64-ucrt-aarch64 --limit-features || `
-          choco install mingw-w64-arm-none-eabi --limit-features || `
+          $choco_install_ucrt = choco install mingw-w64-ucrt-aarch64 --limit-features
+          if ($choco_install_ucrt.ExitCode -ne 0) {
+            Write-Host "Failed to install mingw-w64-ucrt-aarch64" -ForegroundColor Red
+          }
+
+          $choco_install_none = choco install mingw-w64-arm-none-eabi --limit-features
+          if ($choco_install_none.ExitCode -ne 0) {
+            Write-Host "Failed to install mingw-w64-arm-none-eabi" -ForegroundColor Red
+          }
           Write-Host "Could not install AArch64 MinGW via Choco. Manual intervention might be needed." -ForegroundColor Red
 
           # Add the appropriate bin directory to PATH for the current session.
