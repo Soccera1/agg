@@ -37,9 +37,10 @@ jobs:
           fetch-depth: 0
 
       - name: Install cross-compilation tools
-        run: |\
+        run: |
           sudo apt-get update
           sudo apt-get install -y build-essential gcc-aarch64-linux-gnu
+
 
       - name: Build project for Linux (AArch64)
         run: make CC=aarch64-linux-gnu-gcc all
