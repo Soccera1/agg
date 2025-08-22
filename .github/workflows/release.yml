@@ -127,13 +127,7 @@ jobs:
 
   create_release_and_upload_assets:
     runs-on: ubuntu-latest
-    needs:
-      [
-        build_linux_amd64,
-        build_linux_aarch64,
-        build_windows_amd64,
-        build_windows_aarch64,
-      ]
+    needs: [build_linux_amd64, build_linux_aarch64, build_windows_amd64]
     permissions:
       contents: write # Grant write permissions to the GITHUB_TOKEN for creating releases
 
@@ -172,7 +166,7 @@ jobs:
           echo "Debug: Final LATEST_TAG for ENV: $LATEST_TAG"
           echo "Debug: Final NEW_TAG for ENV: $NEW_TAG"
           echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
-          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+          echo \"NEW_TAG=$NEW_TAG\" >> $GITHUB_ENV
         shell: bash
 
       - name: Create Release
@@ -200,55 +194,3 @@ jobs:
         with:
           name: agg-linux-aarch64
           path: ./artifacts/linux-aarch64/
-
-      - name: Download Windows AMD64 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: agg-windows-amd64
-          path: ./artifacts/windows-amd64/
-
-      - name: Download Windows AArch64 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: agg-windows-aarch64
-          path: ./artifacts/windows-aarch64/
-
-      - name: Upload Linux AMD64 Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/linux-amd64/agg
-          asset_name: agg-${{ env.NEW_TAG }}-linux-amd64
-          asset_content_type: application/octet-stream
-
-      - name: Upload Linux AArch64 Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/linux-aarch64/agg
-          asset_name: agg-${{ env.NEW_TAG }}-linux-aarch64
-          asset_content_type: application/octet-stream
-
-      - name: Upload Windows AMD64 Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/windows-amd64/agg.exe
-          asset_name: agg-${{ env.NEW_TAG }}-windows-amd64.exe
-          asset_content_type: application/octet-stream
-
-      - name: Upload Windows AArch64 Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/windows-aarch64/agg.exe
-          asset_name: agg-${{ env.NEW_TAG }}-windows-aarch64.exe
-          asset_content_type: application/octet-stream
