@@ -1,4 +1,4 @@
-// Made with GNU/Linux
+// Made with GNU/Linux with GNU Nano and GNU Emacs. Not made with vi.
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
@@ -39,7 +39,7 @@ int main(void) {
   bool tutorial;
 
   #if !defined(__linux__)
-    printf ("This program has not and will not be tested on non Linux systems! If you experience errors, do not report them!\nIf you wish to fix an issue, please excercise your rights under the GNU Affero Public License Version 3.\nI may occasionally test using wine, however I will never test using native win32, so errors may occur due to this.\n\n");
+    printf ("This program has not and will not be tested on non Linux systems! If you experience errors, do not report them!\nIf you wish to fix an issue, please excercise your rights under the GNU Affero Public License Version 3.\nI may occasionally test using wine, however I will never test using native win32, so errors may occur due to this.\nIf you wish to submit your patches upstream, open a merge request. Before submitting, please test on GNU/Linux.\n\n");
   #endif
 
   printf ("Hello %s!\nThis is a game written for AgnoxGD.\nWould you like to see a tutorial\nType 1 for no, or 0 for yes.\n", username);
@@ -137,12 +137,12 @@ int main(void) {
   if (score >= 1) {
     printf ("Great job, %s!\n", username);
   } else {
-    printf ("Try again!, %s.\n", username);
+    printf ("try again!, %s.\n", username);
   }
   if (accuracytype == 1) {
-    printf ("You got an accuracy of %d%%!\n", (int)accuracy);
+    printf ("you got an accuracy of %d%%!\n", (int)accuracy);
   } else {
-    printf ("You got an accuracy of %g%%!\n", accuracy);
+    printf ("you got an accuracy of %g%%!\n", accuracy);
   }
 
   return 0;
