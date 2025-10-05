@@ -5,6 +5,21 @@
 #include <stdlib.h>
 #include <string.h>
 
+int isbool(char entered []) {
+    int valid = 1;
+    for (int i = 0; i < strlen(entered); i++) {
+        switch (entered[i]) {
+        case '0':
+        case '1':
+            break;
+        default:
+            valid = 0;
+            break;
+        }
+    }
+    return valid;
+}
+
 int isvalidnumber(char entered []) {
     int valid = 1;
     for (int i = 0; i < strlen(entered); i++) {
