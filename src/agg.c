@@ -75,7 +75,7 @@ int main(void) {
   printf ("\nWould you like your accuracy as a float or as an int? Type 0 for float or 1 for int.\n");
    scanf ("%s", input);
 
-  if (isbool(input)) {
+  if (isvalidnumber(input)) {
     sscanf(input, "%d", &accuracytype);
     } else {
     printf ("Error! An invalid character was entered.\n");
