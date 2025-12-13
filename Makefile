@@ -1,6 +1,8 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -pedantic -O3 -flto
+EXTRA_CFLAGS ?=
+CFLAGS ?= -Wall -Wextra -std=c99 -pedantic -O3 -flto $(EXTRA_CFLAGS)
+LDFLAGS ?=
 DEBUG_FLAGS = -g -DDEBUG
 
 # Directories
@@ -29,7 +31,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
 
 # Link executable
 $(TARGET): $(OBJECTS) | $(BINDIR)
-	$(CC) $(OBJECTS) -o $@
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
 # Debug build
 debug: CFLAGS += $(DEBUG_FLAGS)
