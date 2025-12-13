@@ -1,6 +1,6 @@
 # Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99 -O3 -flto
+CFLAGS = -Wall -Wextra -std=c99 -pedantic -O3 -flto
 DEBUG_FLAGS = -g -DDEBUG
 
 # Directories
