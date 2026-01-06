@@ -152,12 +152,12 @@ int main(void) {
   if (score >= 1) {
     printf ("Great job, %s!\n", username);
   } else {
-    printf ("try again!, %s.\n", username);
+    printf ("Try again!, %s.\n", username);
   }
   if (accuracytype == 1) {
-    printf ("you got an accuracy of %d%%!\n", (int)accuracy);
+    printf ("You got an accuracy of %d%%!\n", (int)accuracy);
   } else {
-    printf ("you got an accuracy of %g%%!\n", accuracy);
+    printf ("You got an accuracy of %g%%!\n", accuracy);
   }
 
   return 0;
