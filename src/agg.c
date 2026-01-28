@@ -85,6 +85,10 @@ int main(void) {
   int playtime;
   printf ("\nHow long would you like to play for? Answer in seconds.\n");
   scanf ("%d", &playtime);
+  if (playtime < 1) {
+    printf ("Error! You must select at least one second.\n");
+    exit(1);
+  }
 
   int number_length;
   printf ("Please enter maximum possible number\n");
