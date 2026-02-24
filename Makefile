@@ -2,7 +2,7 @@
 CC = gcc
 EXTRA_CFLAGS ?=
 CFLAGS ?= -Wall -Wextra -std=c99 -pedantic -O3 -flto $(EXTRA_CFLAGS)
-LDFLAGS ?=
+LDFLAGS ?= -s
 DEBUG_FLAGS = -g -DDEBUG
 
 # Directories
