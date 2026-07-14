@@ -49,7 +49,7 @@ int main(void) {
 
   srand(time(NULL));
   char input[2];
-  int tempInput;
+  long tempInput;
   char *username = getenv("USER");
   bool tutorial;
 
@@ -60,7 +60,7 @@ int main(void) {
   printf ("Hello %s!\nThis is a game written for AgnoxGD.\nWould you like to see a tutorial\nType 1 for no, or 0 for yes.\n", username);
   scanf("%s", input);
   if (isbool(input)) {
-    sscanf(input, "%d", &tempInput);
+    sscanf(input, "%ld", &tempInput);
     tutorial = tempInput;
   } else {
     printf ("Error! An invalid character was entered.\n");
@@ -71,42 +71,42 @@ int main(void) {
   } else {
     printf ("Welcome to Agg! This game tests your math skills against the clock.\n\nHow to Play:\n\n1.  Set Your Playtime: First, you'll decide how long you want to play by entering a duration in seconds.\n2.  Solve Math Problems: Once the game starts, you'll be presented with a series of random math problems: addition, division, subtraction, and multiplication. Your goal is to solve as many as you can before time runs out.\n3.  Enter Your Answer: After each problem, type your answer and press Enter. The game will immediately tell you if you're correct or incorrect.\n4.  Rack Up Points: For every correct answer, you'll earn a point. Your score will be tallied at the end.\n5.  Time's Up! The game ends automatically when your chosen playtime runs out. Good luck, and have fun!\n"); }
 
-  int accuracytype;
+  short accuracytype;
   printf ("\nWould you like your accuracy as a float or as an int? Type 0 for float or 1 for int.\n");
    scanf ("%s", input);
 
   if (isbool(input)) {
-    sscanf(input, "%d", &accuracytype);
+    sscanf(input, "%hd", &accuracytype);
     } else {
     printf ("Error! An invalid character was entered.\n");
     exit(1);
   }
 
-  int playtime;
+  unsigned long playtime;
   printf ("\nHow long would you like to play for? Answer in seconds.\n");
-  scanf ("%d", &playtime);
+  scanf ("%lu", &playtime);
   if (playtime < 1) {
     printf ("Error! You must select at least one second.\n");
     exit(1);
   }
 
-  int number_length;
+  unsigned long long number_length;
   printf ("Please enter maximum possible number\n");
-  scanf ("%d", & number_length);
+  scanf ("%llu", & number_length);
 
   time_t unix_time;
   unix_time = time(NULL);
-  int end_time = unix_time + playtime;
+  unsigned long long end_time = unix_time + playtime;
 
-  int score = 0;
-  int questioncount = 0;
+  unsigned long long score = 0;
+  unsigned long long questioncount = 0;
 
   while (unix_time < end_time) {
-    float num1 = rand() % number_length + 1;
-    float num2 = rand() % number_length + 1;
-    int type = rand() % 4 + 1;
-    float result;
-    float answer;
+    double num1 = rand() % number_length + 1;
+    double num2 = rand() % number_length + 1;
+    short type = rand() % 4 + 1;
+    double result;
+    double answer;
     char entered[20];
 
     // DEBUG
@@ -131,7 +131,7 @@ int main(void) {
     scanf ("%s", entered);
 
     if (isvalidnumber(entered)) {
-      sscanf (entered, "%g", &answer);
+      sscanf (entered, "%lg", &answer);
     } else {
       printf ("Error! An invalid character was entered.\n");
       exit (1);
@@ -152,7 +152,7 @@ int main(void) {
 
   accuracy = (float)score / questioncount * 100;
 
-  printf ("Your score is %d!\n", score);
+  printf ("Your score is %llu!\n", score);
   if (score >= 1) {
     printf ("Great job, %s!\n", username);
   } else {
